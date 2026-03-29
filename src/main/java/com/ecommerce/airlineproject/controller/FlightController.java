@@ -40,16 +40,23 @@ public class FlightController {
     // GET metodu ile uçuş arama
     @GetMapping("/search")
     public ResponseEntity<org.springframework.data.domain.Page<FlightResponseDTO>> searchFlights(
-            @RequestParam("from") String from,
-            @RequestParam("to") String to,
-            @RequestParam(value = "people", defaultValue = "1") Integer people,
-            @RequestParam(value = "page", defaultValue = "0") int page) { // Spring'de sayfalar 0'dan başlar!
+            @RequestParam("DateFrom") String dateFrom,
+            @RequestParam("DateTo") String dateTo,
+            @RequestParam("AirportFrom") String airportFrom,
+            @RequestParam("AirportTo") String airportTo,
+            @RequestParam("NumberOfPeople") Integer numberOfPeople,
+            @RequestParam("IsRoundTrip") Boolean isRoundTrip,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
-        // Garson siparişi mutfağa iletiyor
-        org.springframework.data.domain.Page<FlightResponseDTO> flights = flightService.searchFlights(from, to, people, page);
+
+        int actualPage = pageNumber > 0 ? pageNumber - 1 : 0;
+
+        org.springframework.data.domain.Page<FlightResponseDTO> flights = flightService.searchFlights(airportFrom, airportTo, numberOfPeople, actualPage);
 
         return new ResponseEntity<>(flights, org.springframework.http.HttpStatus.OK);
     }
+
 
     // POST metodu ile csv yükleme
     @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -65,4 +72,5 @@ public class FlightController {
         }
     }
 }
+
 

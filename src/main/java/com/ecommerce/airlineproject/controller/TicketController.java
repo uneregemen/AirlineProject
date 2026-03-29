@@ -1,4 +1,4 @@
-package com.ecommerce.airlineproject.controller; // Paket ismini kontrol et
+package com.ecommerce.airlineproject.controller;
 
 import com.ecommerce.airlineproject.dto.*;
 import com.ecommerce.airlineproject.service.TicketService;
@@ -29,19 +29,17 @@ public class TicketController {
         }
     }
 
-    // GET metodu ile bilet sorgulama
+    // GET Bilet Numarası ile bilet detayını gör
     @GetMapping("/{id}")
     public ResponseEntity<?> getTicket(@PathVariable("id") Long id) {
-
         TicketResponseDTO ticket = ticketService.getTicketById(id);
         if (ticket == null) {
-            TransactionStatusDTO errorResponse = new TransactionStatusDTO("Failed", "Ticket not found with ID: " + id);
-            return new ResponseEntity<>(errorResponse, org.springframework.http.HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new TransactionStatusDTO("Failed", "Ticket not found with ID: " + id), org.springframework.http.HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(ticket, org.springframework.http.HttpStatus.OK);
     }
 
-    // DELETE metodu ile bilet iptali
+    // DELETE Bilet Numarası ile bileti iptal et
     @DeleteMapping("/cancel/{id}")
     public ResponseEntity<TransactionStatusDTO> cancelTicket(@PathVariable("id") Long id) {
         TransactionStatusDTO response = ticketService.cancelTicket(id);
@@ -69,9 +67,13 @@ public class TicketController {
     @GetMapping("/passengers")
     public ResponseEntity<org.springframework.data.domain.Page<PassengerResponseDTO>> getPassengerList(
             @RequestParam("flightNumber") String flightNumber,
-            @RequestParam(value = "page", defaultValue = "0") int page) {
+            @RequestParam("date") String date,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
-        org.springframework.data.domain.Page<PassengerResponseDTO> passengers = ticketService.getPassengerList(flightNumber, page);
+        int actualPage = pageNumber > 0 ? pageNumber - 1 : 0;
+
+        org.springframework.data.domain.Page<PassengerResponseDTO> passengers = ticketService.getPassengerList(flightNumber, actualPage);
 
         return new ResponseEntity<>(passengers, org.springframework.http.HttpStatus.OK);
     }

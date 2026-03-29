@@ -16,13 +16,11 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final FlightRepository flightRepository;
 
-    // her iki repoyu da eklemen gerek bağlamak için
     public TicketService(TicketRepository ticketRepository, FlightRepository flightRepository) {
         this.ticketRepository = ticketRepository;
         this.flightRepository = flightRepository;
     }
 
-    // @Transactional: Eğer bilet kesilirken bilgisayar çökerse, yarım kalan işlemi geri alır
     @Transactional
     public TransactionStatusDTO buyTicket(TicketCreateRequestDTO requestDTO) {
 
@@ -37,60 +35,52 @@ public class TicketService {
             return new TransactionStatusDTO("Failed", "Sorry, no available seats on this flight.");
         }
 
-        // 3. Yer varsa yeni bileti (Ticket) oluştur
+        // 2. Yer varsa yeni bilet oluştur
         Ticket ticket = new Ticket();
         ticket.setPassengerName(requestDTO.getPassengerName());
-        ticket.setPassengerID(requestDTO.getPassengerID());
-        ticket.setPurchaseDate(LocalDateTime.now()); // Satın alma saatini şu an olarak ayarla
-        ticket.setFlight(flight); // BİLETİ UÇUŞA BAĞLADIĞIMIZ O KRİTİK SATIR!
+        ticket.setPassengerID("1");
+        ticket.setPurchaseDate(LocalDateTime.now());
+        ticket.setFlight(flight);
 
-        // 4. Uçağın boş koltuk sayısını 1 azalt
+        // 3. Uçağın boş koltuk sayısını azalt
         flight.setAvailableSeats(flight.getAvailableSeats() - 1);
         ticketRepository.save(ticket);
         flightRepository.save(flight);
 
         return new TransactionStatusDTO("Success", "Ticket successfully purchased for " + requestDTO.getPassengerName());
     }
-    // Bilet numarasına (ID) göre bilet sorgulama
+
+    // Bileti Bulma
     public TicketResponseDTO getTicketById(Long id) {
+        java.util.Optional<Ticket> ticketOpt = ticketRepository.findById(id);
 
-        // bileti ID'sine göre bulmaya çalış bulamayabilir de, o yüzden Optional dönüyor
-        java.util.Optional<Ticket> ticketOptional = ticketRepository.findById(id);
-
-        if (ticketOptional.isEmpty()) {
-            return null;
-        }
-        Ticket ticket = ticketOptional.get();
+        if (ticketOpt.isEmpty()) return null;
+        Ticket ticket = ticketOpt.get();
         TicketResponseDTO responseDTO = new TicketResponseDTO();
         responseDTO.setId(ticket.getId());
         responseDTO.setPassengerName(ticket.getPassengerName());
-        responseDTO.setPassengerID(ticket.getPassengerID());
         responseDTO.setPurchaseDate(ticket.getPurchaseDate());
-        responseDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
-
+        responseDTO.setPassengerID(ticket.getPassengerID());
+        if (ticket.getFlight() != null) {
+            responseDTO.setFlightNumber(ticket.getFlight().getFlightNumber());
+        }
         return responseDTO;
     }
 
+    // Bileti İptal Etme
     @org.springframework.transaction.annotation.Transactional
-    public TransactionStatusDTO cancelTicket(Long ticketId) {
+    public TransactionStatusDTO cancelTicket(Long id) {
+        java.util.Optional<Ticket> ticketOpt = ticketRepository.findById(id);
 
-        // bileti ID'sine göre bul
-        java.util.Optional<Ticket> ticketOptional = ticketRepository.findById(ticketId);
-
-        // Eğer bilet yoksa hata dön
-        if (ticketOptional.isEmpty()) {
-            return new TransactionStatusDTO("Failed", "Ticket not found with ID: " + ticketId);
+        if (ticketOpt.isEmpty()) {
+            return new TransactionStatusDTO("Failed", "Ticket not found with ID: " + id);
         }
 
-        // Bilet varsa kutudan çıkar
-        Ticket ticket = ticketOptional.get();
-        //İŞTE CAN ALICI NOKTA: Biletin bağlı olduğu uçuşu bul!
+        Ticket ticket = ticketOpt.get();
         Flight flight = ticket.getFlight();
-        //Koltuk iadesi: Uçağın boş koltuk sayısını 1 ARTIR
+
         flight.setAvailableSeats(flight.getAvailableSeats() + 1);
-        //Uçağın yeni koltuk sayısını kaydet
         flightRepository.save(flight);
-        //Bileti veritabanından kalıcı olarak sil (Çöpe at)
         ticketRepository.delete(ticket);
 
         return new TransactionStatusDTO("Success", "Ticket successfully canceled. Seat returned to the flight.");
@@ -115,7 +105,6 @@ public class TicketService {
             return new TransactionStatusDTO("Failed", "Passenger is already checked in. Seat: " + ticket.getSeatNumber());
         }
 
-        // 3. Basit bir koltuk numarası üret (Örn: 1 ile 30 arası bir sayı ve A-F arası bir harf)
         int row = (int) (Math.random() * 30) + 1;
         char letter = (char) ('A' + Math.random() * 6);
         String generatedSeat = row + "" + letter;
@@ -127,18 +116,14 @@ public class TicketService {
         return new TransactionStatusDTO("Success", "Check-in successful. Your seat is: " + generatedSeat);
     }
 
-    // Belirli bir uçuşun yolcu listesini sayfalama (Paging) ile getirme
     public org.springframework.data.domain.Page<PassengerResponseDTO> getPassengerList(String flightNumber, int pageNumber) {
 
-        //Sayfa boyutu 10 olacak
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(pageNumber, 10);
 
         org.springframework.data.domain.Page<Ticket> ticketPage = ticketRepository.findByFlight_FlightNumber(flightNumber, pageable);
         return ticketPage.map(ticket -> {
             PassengerResponseDTO dto = new PassengerResponseDTO();
             dto.setPassengerName(ticket.getPassengerName());
-
-            // Eğer check-in yapmamışsa "Not Checked-in" yazsın
             if (ticket.getSeatNumber() != null) {
                 dto.setSeatNumber(ticket.getSeatNumber());
             } else {
