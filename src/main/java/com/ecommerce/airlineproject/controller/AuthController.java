@@ -5,6 +5,7 @@ import com.ecommerce.airlineproject.dto.TransactionStatusDTO;
 import com.ecommerce.airlineproject.entity.User;
 import com.ecommerce.airlineproject.repository.UserRepository;
 import com.ecommerce.airlineproject.security.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ public class AuthController {
     }
 
     // 1. SİSTEME KAYIT OLMA (REGISTER)
+    @Operation(summary = "Register a new user", description = "Pre-Condition: The provided username must not exist in the database.<br>Post-Condition: A new user is created with the ROLE_USER permission and saved to the database.")
     @PostMapping("/register")
     public ResponseEntity<TransactionStatusDTO> register(@RequestBody AuthRequestDTO request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -40,6 +42,7 @@ public class AuthController {
     }
 
     // 2. SİSTEME GİRİŞ YAPMA VE TOKEN ALMA (LOGIN)
+    @Operation(summary = "Login and obtain a JWT token", description = "Pre-Condition: The user must exist and the password must match the database record.<br>Post-Condition: A valid JWT token with user details is generated and returned to the client.")
     @PostMapping("/login")
     public ResponseEntity<TransactionStatusDTO> login(@RequestBody AuthRequestDTO request) {
 

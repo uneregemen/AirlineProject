@@ -69,7 +69,6 @@ public class FlightService {
     }
 
     // CSV Dosyasından Toplu Uçuş Ekleme
-    @org.springframework.transaction.annotation.Transactional
     public TransactionStatusDTO addFlightsByFile(org.springframework.web.multipart.MultipartFile file) {
         try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(file.getInputStream()))) {
             String line;

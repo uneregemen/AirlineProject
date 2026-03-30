@@ -1,0 +1,80 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6_script.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 50 max VUs, 40s max duration (incl. graceful stop):
+              * default: 50 looping VUs for 10s (gracefulStop: 30s)
+
+
+running (01.0s), 50/50 VUs, 0 complete and 0 interrupted iterations
+default   [   3% ] 50 VUs  00.3s/10s
+
+running (02.0s), 50/50 VUs, 0 complete and 0 interrupted iterations
+default   [  13% ] 50 VUs  01.3s/10s
+
+running (03.0s), 50/50 VUs, 50 complete and 0 interrupted iterations
+default   [  23% ] 50 VUs  02.3s/10s
+
+running (04.0s), 50/50 VUs, 79 complete and 0 interrupted iterations
+default   [  33% ] 50 VUs  03.3s/10s
+
+running (05.0s), 50/50 VUs, 100 complete and 0 interrupted iterations
+default   [  43% ] 50 VUs  04.3s/10s
+
+running (06.0s), 50/50 VUs, 150 complete and 0 interrupted iterations
+default   [  53% ] 50 VUs  05.3s/10s
+
+running (07.0s), 50/50 VUs, 200 complete and 0 interrupted iterations
+default   [  63% ] 50 VUs  06.3s/10s
+
+running (08.0s), 50/50 VUs, 250 complete and 0 interrupted iterations
+default   [  73% ] 50 VUs  07.3s/10s
+
+running (09.0s), 50/50 VUs, 292 complete and 0 interrupted iterations
+default   [  83% ] 50 VUs  08.3s/10s
+
+running (10.0s), 50/50 VUs, 322 complete and 0 interrupted iterations
+default   [  93% ] 50 VUs  09.3s/10s
+
+running (11.0s), 45/50 VUs, 355 complete and 0 interrupted iterations
+default ↓ [ 100% ] 50 VUs  10s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 800     70.219369/s
+    checks_succeeded...: 100.00% 800 out of 800
+    checks_failed......: 0.00%   0 out of 800
+
+    ✓ Buy Ticket is 201 or 400 (Capacity Full)
+    ✓ Checkin is 200
+
+    HTTP
+    http_req_duration..............: avg=149.94ms min=80.12ms med=99.35ms max=754.88ms p(90)=242.29ms p(95)=619.54ms
+      { expected_response:true }...: avg=149.94ms min=80.12ms med=99.35ms max=754.88ms p(90)=242.29ms p(95)=619.54ms
+    http_req_failed................: 0.00%  0 out of 801
+    http_reqs......................: 801    70.307143/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.31s    min=1.17s   med=1.2s    max=1.93s    p(90)=1.88s    p(95)=1.91s   
+    iterations.....................: 400    35.109684/s
+    vus............................: 45     min=45       max=50
+    vus_max........................: 50     min=50       max=50
+
+    NETWORK
+    data_received..................: 366 kB 32 kB/s
+    data_sent......................: 255 kB 22 kB/s
+
+
+
+
+running (11.4s), 00/50 VUs, 400 complete and 0 interrupted iterations
+default ✓ [ 100% ] 50 VUs  10s
