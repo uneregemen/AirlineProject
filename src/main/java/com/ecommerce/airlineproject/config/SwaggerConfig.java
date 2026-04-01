@@ -33,9 +33,10 @@ public class SwaggerConfig {
 
         @Bean
         public OpenApiCustomizer customServer() {
+                // "/" URL'si browser üzerinden gelen isteğin (origin) host ve portunu dinamik olarak kullanır!
+                // Yani 8080'den girerseniz istekler 8080'e gider, 8081'den girerseniz 8081'e gider.
                 return openApi -> openApi.setServers(List.of(
-                                new Server().url("http://16.171.6.106:8081").description("AWS Gateway (Production)"),
-                                new Server().url("http://localhost:8081").description("Local Gateway (Development)")
+                                new Server().url("/").description("Default Server (Dynamic based on port)")
                 ));
         }
 }
