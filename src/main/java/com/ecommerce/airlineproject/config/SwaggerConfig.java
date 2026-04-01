@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 
 @Configuration
 public class SwaggerConfig {
@@ -18,9 +19,6 @@ public class SwaggerConfig {
         public OpenAPI customOpenAPI() {
                 return new OpenAPI()
                                 .info(new Info().title("Airline API System").version("v1"))
-                                .servers(List.of(
-                                                new Server().url("http://16.171.6.106:8081")
-                                                                .description("AWS Production Server")))
                                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth")) // TÜM ENDPOINT'LERE
                                                                                                   // TOKEN ŞARTI EKLER!
                                 .components(new Components()
@@ -31,5 +29,13 @@ public class SwaggerConfig {
                                                                                 .scheme("bearer")
                                                                                 .bearerFormat("JWT")
                                                                                 .in(SecurityScheme.In.HEADER)));
+        }
+
+        @Bean
+        public OpenApiCustomizer customServer() {
+                return openApi -> openApi.setServers(List.of(
+                                new Server().url("http://16.171.6.106:8081").description("AWS Gateway (Production)"),
+                                new Server().url("http://localhost:8081").description("Local Gateway (Development)")
+                ));
         }
 }
