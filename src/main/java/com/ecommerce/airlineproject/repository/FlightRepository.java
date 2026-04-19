@@ -11,11 +11,18 @@ public interface FlightRepository extends JpaRepository<Flight, Long>{
 
     boolean existsByFlightNumber(String flightNumber);
 
-    @Query("SELECT f FROM Flight f WHERE f.airportFrom = :from AND f.airportTo = :to AND f.availableSeats >= :people")
+    @Query("SELECT f FROM Flight f WHERE " +
+           "(:from IS NULL OR f.airportFrom = :from) AND " +
+           "(:to IS NULL OR f.airportTo = :to) AND " +
+           "(:people IS NULL OR f.availableSeats >= :people) AND " +
+           "(cast(:dateFrom as timestamp) IS NULL OR f.dateFrom >= :dateFrom) AND " +
+           "(cast(:dateTo as timestamp) IS NULL OR f.dateFrom <= :dateTo)")
     Page<Flight> findAvailableFlights(
             @Param("from") String from,
             @Param("to") String to,
             @Param("people") Integer people,
+            @Param("dateFrom") java.time.LocalDateTime dateFrom,
+            @Param("dateTo") java.time.LocalDateTime dateTo,
             Pageable pageable
     );
 

@@ -44,19 +44,19 @@ public class FlightController {
     @Operation(summary = "Search and paginate flights", description = "Pre-Condition: No authentication is required. Departure and arrival airports must be provided in the request parameters.<br>Post-Condition: A paginated list of flights matching the search criteria is returned.")
     @GetMapping("/search")
     public ResponseEntity<org.springframework.data.domain.Page<FlightResponseDTO>> searchFlights(
-            @RequestParam("DateFrom") String dateFrom,
-            @RequestParam("DateTo") String dateTo,
-            @RequestParam("AirportFrom") String airportFrom,
-            @RequestParam("AirportTo") String airportTo,
-            @RequestParam("NumberOfPeople") Integer numberOfPeople,
-            @RequestParam("IsRoundTrip") Boolean isRoundTrip,
+            @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @RequestParam(value = "dateTo", required = false) String dateTo,
+            @RequestParam(value = "airportFrom", required = false) String airportFrom,
+            @RequestParam(value = "airportTo", required = false) String airportTo,
+            @RequestParam(value = "numberOfPeople", required = false) Integer numberOfPeople,
+            @RequestParam(value = "isRoundTrip", required = false) Boolean isRoundTrip,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
 
         int actualPage = pageNumber > 0 ? pageNumber - 1 : 0;
 
-        org.springframework.data.domain.Page<FlightResponseDTO> flights = flightService.searchFlights(airportFrom, airportTo, numberOfPeople, actualPage);
+        org.springframework.data.domain.Page<FlightResponseDTO> flights = flightService.searchFlights(airportFrom, airportTo, numberOfPeople, actualPage, dateFrom, dateTo, isRoundTrip);
 
         return new ResponseEntity<>(flights, org.springframework.http.HttpStatus.OK);
     }

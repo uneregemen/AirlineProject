@@ -49,12 +49,29 @@ public class FlightService {
         return responseList;
     }
 
-    public org.springframework.data.domain.Page<FlightResponseDTO> searchFlights(String from, String to, Integer numberOfPeople, int pageNumber) {
+    public org.springframework.data.domain.Page<FlightResponseDTO> searchFlights(String from, String to, Integer numberOfPeople, int pageNumber, String dateFromStr, String dateToStr, Boolean isRoundTrip) {
 
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(pageNumber, 10);
 
-        org.springframework.data.domain.Page<Flight> flightPage = flightRepository.findAvailableFlights(from, to, numberOfPeople, pageable);
+        java.time.LocalDateTime parsedDateFrom = null;
+        if (dateFromStr != null && !dateFromStr.isEmpty()) {
+            try {
+                parsedDateFrom = java.time.LocalDateTime.parse(dateFromStr);
+            } catch (Exception e) {
+                try { parsedDateFrom = java.time.LocalDate.parse(dateFromStr).atStartOfDay(); } catch (Exception ex) {}
+            }
+        }
 
+        java.time.LocalDateTime parsedDateTo = null;
+        if (dateToStr != null && !dateToStr.isEmpty()) {
+            try {
+                parsedDateTo = java.time.LocalDateTime.parse(dateToStr);
+            } catch (Exception e) {
+                try { parsedDateTo = java.time.LocalDate.parse(dateToStr).atTime(23, 59, 59); } catch (Exception ex) {}
+            }
+        }
+
+        org.springframework.data.domain.Page<Flight> flightPage = flightRepository.findAvailableFlights(from, to, numberOfPeople, parsedDateFrom, parsedDateTo, pageable);
 
         return flightPage.map(flight -> {
             FlightResponseDTO dto = new FlightResponseDTO();
