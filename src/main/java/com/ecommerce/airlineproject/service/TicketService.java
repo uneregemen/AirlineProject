@@ -91,7 +91,7 @@ public class TicketService {
     public TransactionStatusDTO checkIn(CheckInRequestDTO request) {
 
         // 1. Müşterinin bu uçuşta bileti var mı kontrol et
-        java.util.Optional<Ticket> ticketOpt = ticketRepository.findByFlight_FlightNumberAndPassengerName(
+        java.util.Optional<Ticket> ticketOpt = ticketRepository.findFirstByFlight_FlightNumberAndPassengerName(
                 request.getFlightNumber(), request.getPassengerName());
 
         if (ticketOpt.isEmpty()) {
